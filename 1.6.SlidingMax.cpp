@@ -1,57 +1,56 @@
 #include <bits/stdc++.h>
 
-/*
-Дан массив натуральных чисел A[0..n), n не превосходит 100 000 000.
-Так же задан размер некотрого окна (последовательно расположенных элементов массива)
-в этом массиве k, k<=n.
-Требуется для каждого положения окна (от 0 и до n-k)
-вывести значение максимума в окне.
-Скорость работы O(n log n), память O(k).
-*/
+/* Р”Р°РЅ РјР°СЃСЃРёРІ РЅР°С‚СѓСЂР°Р»СЊРЅС‹С… С‡РёСЃРµР» A[0..n), n РЅРµ РїСЂРµРІРѕСЃС…РѕРґРёС‚ 100 000 000.
+ * РўР°Рє Р¶Рµ Р·Р°РґР°РЅ СЂР°Р·РјРµСЂ РЅРµРєРѕС‚СЂРѕРіРѕ РѕРєРЅР° (РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ СЂР°СЃРїРѕР»РѕР¶РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ РјР°СЃСЃРёРІР°)
+ * РІ СЌС‚РѕРј РјР°СЃСЃРёРІРµ k, k<=n.
+ * РўСЂРµР±СѓРµС‚СЃСЏ РґР»СЏ РєР°Р¶РґРѕРіРѕ РїРѕР»РѕР¶РµРЅРёСЏ РѕРєРЅР° (РѕС‚ 0 Рё РґРѕ n-k)
+ * РІС‹РІРµСЃС‚Рё Р·РЅР°С‡РµРЅРёРµ РјР°РєСЃРёРјСѓРјР° РІ РѕРєРЅРµ.
+ * РЎРєРѕСЂРѕСЃС‚СЊ СЂР°Р±РѕС‚С‹ O(n log n), РїР°РјСЏС‚СЊ O(k).
+ */
 
 using namespace std;
 
-// Просеивание вверх
+// РџСЂРѕСЃРµРёРІР°РЅРёРµ РІРІРµСЂС…
 void sift_up(pair<int, int> *heap, int index) {
     while (index > 0){
-        // Предок index
+        // РџСЂРµРґРѕРє index
         int p = (index - 1) / 2;
-        // Если куча стада правильной (предок больше сына)
+        // Р•СЃР»Рё РєСѓС‡Р° СЃС‚Р°РґР° РїСЂР°РІРёР»СЊРЅРѕР№ (РїСЂРµРґРѕРє Р±РѕР»СЊС€Рµ СЃС‹РЅР°)
         if (heap[p].first >= heap[index].first)
             return;
-        // Делаем кучу правильной
+        // Р”РµР»Р°РµРј РєСѓС‡Сѓ РїСЂР°РІРёР»СЊРЅРѕР№
         swap(heap[p], heap[index]);
         index = p;
     }
 }
 
-// Просеивание вниз
+// РџСЂРѕСЃРµРёРІР°РЅРёРµ РІРЅРёР·
 void sift_down(int heap_size, pair<int, int> *heap, int index = 0) {
     int left = 2 * index + 1;
     int right = 2 * index + 2;
 
-    // Ищем большего сына, если такой есть
+    // РС‰РµРј Р±РѕР»СЊС€РµРіРѕ СЃС‹РЅР°, РµСЃР»Рё С‚Р°РєРѕР№ РµСЃС‚СЊ
     int largest = index;
     if  ((left < heap_size) && (heap[largest].first < heap[left].first))
         largest = left;
     if  ((right < heap_size) && (heap[largest].first < heap[right].first))
         largest = right;
 
-    // Если есть больший сын, то проталкиваем родителя в него
+    // Р•СЃР»Рё РµСЃС‚СЊ Р±РѕР»СЊС€РёР№ СЃС‹РЅ, С‚Рѕ РїСЂРѕС‚Р°Р»РєРёРІР°РµРј СЂРѕРґРёС‚РµР»СЏ РІ РЅРµРіРѕ
     if (largest != index) {
         swap(heap[largest], heap[index]);
         sift_down(heap_size, heap, largest);
     }
 }
 
-// Добавление в кучу
+// Р”РѕР±Р°РІР»РµРЅРёРµ РІ РєСѓС‡Сѓ
 void heap_add(pair<int, int> *heap, int &realsize, int index, int value) {
     heap[realsize] = {value, index};
     sift_up(heap, realsize);
     realsize++;
 }
 
-// Удаление максимума из кучи
+// РЈРґР°Р»РµРЅРёРµ РјР°РєСЃРёРјСѓРјР° РёР· РєСѓС‡Рё
 void heap_delete(int heap_size, pair<int, int> *heap, int &realsize) {
     swap(heap[0], heap[realsize - 1]);
     heap[realsize - 1] = {0, 0};
@@ -59,7 +58,16 @@ void heap_delete(int heap_size, pair<int, int> *heap, int &realsize) {
     realsize--;
 }
 
-// Инициализация кучи в начале
+// РќР°С…РѕР¶РґРµРЅРёРµ СЂР°Р·РјРµСЂР° РєСѓС‡Рё
+int find_size_of_heap(int n) {
+    int heap_size = 1;
+    while (heap_size <= n) {
+        heap_size = heap_size << 1;
+    }
+    return heap_size;
+}
+
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РєСѓС‡Рё РІ РЅР°С‡Р°Р»Рµ
 void initialization(pair<int, int> *heap, int k, int *a, int heap_size) {
     for (int i = 0; i < k; i++) {
         heap[i] = {a[i], i};
@@ -80,8 +88,7 @@ int main() {
     int k;
     cin >> k;
 
-    //int heap_size = find_size_of_heap(n);
-    int heap_size = k + 1;
+    int heap_size = find_size_of_heap(n);
 
     pair<int, int> *heap = new pair<int, int> [heap_size];
     int realsize = k;
@@ -90,7 +97,7 @@ int main() {
     cout << heap[0].first;
     for (int i = k; i < n; i++) {
         heap_add(heap, realsize, i, a[i]);
-        // Если максимумом оказался элемент, который не попадает в текущее окно размера k
+        // Р•СЃР»Рё РјР°РєСЃРёРјСѓРјРѕРј РѕРєР°Р·Р°Р»СЃСЏ СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂС‹Р№ РЅРµ РїРѕРїР°РґР°РµС‚ РІ С‚РµРєСѓС‰РµРµ РѕРєРЅРѕ СЂР°Р·РјРµСЂР° k
         while (heap[0].second <= (i - k))
             heap_delete(heap_size, heap, realsize);
         cout << " " << heap[0].first;
