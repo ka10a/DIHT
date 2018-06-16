@@ -1,0 +1,9 @@
+WITH t AS (
+SELECT DISTINCT PIT.ID_psg, COUNT(*) AS CNT
+FROM Pass_in_trip AS PIT
+GROUP BY PIT.ID_psg, PIT.place
+HAVING COUNT(*) >= ALL (SELECT COUNT(*) AS CNT FROM Pass_in_trip AS PIT GROUP BY PIT.ID_psg, PIT.place)
+)
+
+SELECT (SELECT name FROM Passenger AS P WHERE P.ID_psg = t.ID_psg) AS name, CNT
+FROM t

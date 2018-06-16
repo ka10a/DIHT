@@ -1,0 +1,5 @@
+SELECT COUNT(*)
+FROM
+(SELECT DISTINCT maker FROM Product
+GROUP BY maker
+HAVING COUNT(model) = 1) t1

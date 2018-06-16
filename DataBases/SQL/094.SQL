@@ -1,0 +1,32 @@
+WITH t AS (
+SELECT COUNT(DISTINCT PIT.trip_no) AS cnt, date FROM Pass_in_trip AS PIT
+INNER JOIN Trip ON Trip.trip_no=PIT.trip_no
+WHERE town_from='Rostov'
+GROUP BY date
+)
+
+SELECT (SELECT MIN(date) FROM t WHERE cnt >= ALL(SELECT cnt FROM t)) AS Dt, ISNULL((SELECT cnt FROM t WHERE date=(SELECT MIN(date) FROM t WHERE cnt >= ALL(SELECT cnt FROM t))), 0) AS Qty FROM t
+UNION
+SELECT DATEADD(dd, 1, (SELECT MIN(date) FROM t WHERE cnt >= ALL(SELECT cnt FROM t))),
+ISNULL((SELECT cnt FROM t WHERE date=DATEADD(dd, 1, (SELECT MIN(date)
+FROM t WHERE cnt >= ALL(SELECT cnt FROM t))) ), 0) FROM t
+UNION
+SELECT DATEADD(dd, 2, (SELECT MIN(date) FROM t WHERE cnt >= ALL(SELECT cnt FROM t))),
+ISNULL((SELECT cnt FROM t WHERE date=DATEADD(dd, 2, (SELECT MIN(date)
+FROM t WHERE cnt >= ALL(SELECT cnt FROM t))) ), 0) FROM t
+UNION
+SELECT DATEADD(dd, 3, (SELECT MIN(date) FROM t WHERE cnt >= ALL(SELECT cnt FROM t))),
+ISNULL((SELECT cnt FROM t WHERE date=DATEADD(dd, 3, (SELECT MIN(date)
+FROM t WHERE cnt >= ALL(SELECT cnt FROM t))) ), 0) FROM t
+UNION
+SELECT DATEADD(dd, 4, (SELECT MIN(date) FROM t WHERE cnt >= ALL(SELECT cnt FROM t))),
+ISNULL((SELECT cnt FROM t WHERE date=DATEADD(dd, 4, (SELECT MIN(date)
+FROM t WHERE cnt >= ALL(SELECT cnt FROM t))) ), 0) FROM t
+UNION
+SELECT DATEADD(dd, 5, (SELECT MIN(date) FROM t WHERE cnt >= ALL(SELECT cnt FROM t))),
+ISNULL((SELECT cnt FROM t WHERE date=DATEADD(dd, 5, (SELECT MIN(date)
+FROM t WHERE cnt >= ALL(SELECT cnt FROM t))) ), 0) FROM t
+UNION
+SELECT DATEADD(dd, 6, (SELECT MIN(date) FROM t WHERE cnt >= ALL(SELECT cnt FROM t))),
+ISNULL((SELECT cnt FROM t WHERE date=DATEADD(dd, 6, (SELECT MIN(date)
+FROM t WHERE cnt >= ALL(SELECT cnt FROM t))) ), 0) FROM t
